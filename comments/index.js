@@ -5,23 +5,23 @@ const bodyParser = require('body-parser')
 
 const PORT = process.env.PORT ?? 4010;
 const app = express();
-const comment = {};
+const commentsByPostId = {};
 
 app.use(bodyParser.json());
 
-//router for posts
-app.get('/comments', (req, res) => {
-    res.send(comment);
+//router for comments
+app.get('/posts/:id/comments', (req, res) => {
+    res.send(commentsByPostId[req.params.id] || []);
 });
 
-app.post('/comments', (req, res) => {
-    const id = randomBytes(4).toString('hex');
-    const { body} = req.body;
-    posts[id] = {
-        id,
-        body,
-    };
-    res.status(201).send(comment[id]);
+app.post('/posts/:id/comments', (req, res) => {
+    const commentId = randomBytes(4).toString('hex');
+    const { content} = req.body;
+    const comments = commentsByPostId[req.params.id] || [];
+    comments.push({id: commentId, content});
+    commentsByPostId[req.params.id] = comments;
+
+    res.status(201).send(comments);
 });
 
 app.listen(PORT, () => {
